@@ -22,7 +22,7 @@ const Home = () =>
                             <Subtitle subtitle = {'Know Before You Go'}/>
                             <img src = {worldImg} alt = ""/>
                         </div>
-                        <h1>Travelling opens the foor tp creating <span className='highlight'> memories</span>
+                        <h1>Travelling opens the floor for creating <span className='highlight'> memories</span>
                         </h1>
                         <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam modi vero impedit atque, recusandae, officiis quia distinctio inventore ullam, quos exercitationem. Maiores quo unde impedit natus? Itaque eum asperiores quia.
                         </p>
