@@ -24,7 +24,7 @@ const Header = () => {
     return <header className="header">
         <container>
             <Row>
-                <div className="nav_wrappwe d-flex align-items-center justify-content-between">
+                <div className="nav_wrapper d-flex align-items-center justify-content-between">
                     {/* ==========  logo  ========== */}
                     <div className="logo">
                         <img src={logo} alt="" />
