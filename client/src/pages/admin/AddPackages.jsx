@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { app } from "../../firebase";
 import {
   getDownloadURL,
@@ -6,11 +6,8 @@ import {
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
-import { useNavigate, useParams } from "react-router";
 
-const UpdatePackage = () => {
-  const params = useParams();
-  const navigate = useNavigate();
+const AddPackages = () => {
   const [formData, setFormData] = useState({
     packageName: "",
     packageDescription: "",
@@ -32,38 +29,6 @@ const UpdatePackage = () => {
   const [imageUploadPercent, setImageUploadPercent] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-
-  const getPackageData = async () => {
-    try {
-      const res = await fetch(`/api/package/get-package-data/${params?.id}`);
-      const data = await res.json();
-      if (data?.success) {
-        // console.log(data);
-        setFormData({
-          packageName: data?.packageData?.packageName,
-          packageDescription: data?.packageData?.packageDescription,
-          packageDestination: data?.packageData?.packageDestination,
-          packageDays: data?.packageData?.packageDays,
-          packageNights: data?.packageData?.packageNights,
-          packageAccommodation: data?.packageData?.packageAccommodation,
-          packageTransportation: data?.packageData?.packageTransportation,
-          packageMeals: data?.packageData?.packageMeals,
-          packageActivities: data?.packageData?.packageActivities,
-          packagePrice: data?.packageData?.packagePrice,
-          packageDiscountPrice: data?.packageData?.packageDiscountPrice,
-          packageOffer: data?.packageData?.packageOffer,
-          packageImages: data?.packageData?.packageImages,
-        });
-      } else {
-        alert(data?.message || "Something went wrong!");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  useEffect(() => {
-    if (params.id) getPackageData();
-  }, [params.id]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -104,9 +69,10 @@ const UpdatePackage = () => {
   };
 
   const storeImage = async (file) => {
+  
     return new Promise((resolve, reject) => {
       const storage = getStorage(app);
-      const fileName = new Date().getTime() + file.name;
+      const fileName = new Date().getTime() + file.name.replace(/\s/g, "");
       const storageRef = ref(storage, fileName);
       const uploadTask = uploadBytesResumable(storageRef, file);
       uploadTask.on(
@@ -117,10 +83,12 @@ const UpdatePackage = () => {
           setImageUploadPercent(Math.floor(progress));
         },
         (error) => {
+          debugger;
           reject(error);
         },
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            debugger;
             resolve(downloadURL);
           });
         }
@@ -165,11 +133,12 @@ const UpdatePackage = () => {
     if (formData.packageOffer === false) {
       setFormData({ ...formData, packageDiscountPrice: 0 });
     }
+    // console.log(formData);
     try {
       setLoading(true);
       setError(false);
 
-      const res = await fetch(`/api/package/update-package/${params?.id}`, {
+      const res = await fetch("/api/package/create-package", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -184,9 +153,22 @@ const UpdatePackage = () => {
       setLoading(false);
       setError(false);
       alert(data?.message);
-      // getPackageData();
-      // setImages([]);
-      navigate(`/package/${params?.id}`);
+      setFormData({
+        packageName: "",
+        packageDescription: "",
+        packageDestination: "",
+        packageDays: 1,
+        packageNights: 1,
+        packageAccommodation: "",
+        packageTransportation: "",
+        packageMeals: "",
+        packageActivities: "",
+        packagePrice: 500,
+        packageDiscountPrice: 0,
+        packageOffer: false,
+        packageImages: [],
+      });
+      setImages([]);
     } catch (err) {
       console.log(err);
     }
@@ -194,19 +176,19 @@ const UpdatePackage = () => {
 
   return (
     <>
-      <div className="w-full flex flex-wrap justify-center gap-2 p-6">
+      <div className="w-full flex justify-center p-3">
         <form
           onSubmit={handleSubmit}
-          className="w-full sm:w-[60%] shadow-md rounded-xl p-3 gap-2 flex flex-col items-center"
+          className="w-4/5 shadow-md rounded-xl p-3 gap-2 flex flex-col items-center"
         >
-          <h1 className="text-center text-2xl font-semibold">Update Package</h1>
+          <h1 className="text-center text-2xl font-semibold">Add Package</h1>
           <div className="flex flex-col w-full">
             <label htmlFor="packageName">Name:</label>
             <input
               type="text"
               className="border border-black rounded"
               id="packageName"
-              value={formData?.packageName}
+              value={formData.packageName}
               onChange={handleChange}
             />
           </div>
@@ -263,15 +245,13 @@ const UpdatePackage = () => {
             />
           </div>
           <div className="flex flex-col w-full">
-            <label htmlFor="packageTransportation">
-              Transportation:(Selected:{formData?.packageTransportation})
-            </label>
+            <label htmlFor="packageTransportation">Transportation:</label>
             <select
               className="border border-black rounded-lg"
               id="packageTransportation"
               onChange={handleChange}
             >
-              <option value={formData?.packageTransportation}>Select</option>
+              <option>Select</option>
               <option>Flight</option>
               <option>Train</option>
               <option>Boat</option>
@@ -314,7 +294,7 @@ const UpdatePackage = () => {
               type="checkbox"
               className="border border-black rounded w-4 h-4"
               id="packageOffer"
-              checked={formData?.packageOffer}
+              checked={formData.packageOffer}
               onChange={handleChange}
             />
           </div>
@@ -332,24 +312,6 @@ const UpdatePackage = () => {
               onChange={handleChange}
             />
           </div>
-          {imageUploadError ||
-            (error && (
-              <span className="text-red-600 w-full">
-                {imageUploadError || error}
-              </span>
-            ))}
-          <button
-            disabled={uploading || loading}
-            className="bg-green-700 p-3 rounded text-white hover:opacity-95 disabled:opacity-80 w-full"
-          >
-            {uploading
-              ? "Uploading..."
-              : loading
-              ? "Loading..."
-              : "Update Package"}
-          </button>
-        </form>
-        <div className="w-full sm:w-[30%] shadow-md rounded-xl p-3 h-max flex flex-col gap-2">
           <div className="flex flex-col w-full">
             <label htmlFor="packageImages">
               Images:
@@ -365,7 +327,36 @@ const UpdatePackage = () => {
               onChange={(e) => setImages(e.target.files)}
             />
           </div>
-          {formData?.packageImages?.length > 0 && (
+          {imageUploadError ||
+            (error && (
+              <span className="text-red-600 w-full">
+                {imageUploadError || error}
+              </span>
+            ))}
+          <button
+            hidden={images.length === 0}
+            disabled={uploading || loading}
+            className="bg-green-700 p-3 rounded text-white hover:opacity-95 disabled:opacity-80 w-full"
+            type="button"
+            onClick={handleImageSubmit}
+          >
+            {uploading
+              ? `Uploading...(${imageUploadPercent}%)`
+              : loading
+              ? "Loading..."
+              : "Upload Images"}
+          </button>
+          <button
+            disabled={uploading || loading}
+            className="bg-green-700 p-3 rounded text-white hover:opacity-95 disabled:opacity-80 w-full"
+          >
+            {uploading
+              ? "Uploading..."
+              : loading
+              ? "Loading..."
+              : "Add Package"}
+          </button>
+          {formData.packageImages.length > 0 && (
             <div className="p-3 w-full flex flex-col justify-center">
               {formData.packageImages.map((image, i) => {
                 return (
@@ -385,22 +376,10 @@ const UpdatePackage = () => {
               })}
             </div>
           )}
-          <button
-            disabled={uploading || loading || images.length === 0}
-            className="bg-green-700 p-3 rounded text-white hover:opacity-95 disabled:opacity-80 w-full"
-            type="button"
-            onClick={handleImageSubmit}
-          >
-            {uploading
-              ? `Uploading...(${imageUploadPercent}%)`
-              : loading
-              ? "Loading..."
-              : "Upload Images"}
-          </button>
-        </div>
+        </form>
       </div>
     </>
   );
 };
 
-export default UpdatePackage;
+export default AddPackages;
