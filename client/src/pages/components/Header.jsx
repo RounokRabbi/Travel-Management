@@ -23,7 +23,7 @@ const Header = () => {
               WebkitTextStroke: "0",
             }}
           >
-            Dream Tours
+            Travel World
           </span>
         </h1>
         <ul className="flex flex-wrap items-center justify-end gap-2 text-white font-semibold list-none">
