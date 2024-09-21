@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
+const jwtSecret = import.meta.env.VITE_JWT_SECRET;
 
 export const requireSignIn = async (req, res, next) => {
   if (req?.cookies?.X_TTMS_access_token) {
@@ -10,7 +11,7 @@ export const requireSignIn = async (req, res, next) => {
         message: "Unautorized: Token not provided!",
       });
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    jwt.verify(token, jwtSecret, (err, user) => {
       if (err)
         return res.status(403).send({
           success: false,
