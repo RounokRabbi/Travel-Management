@@ -21,11 +21,7 @@ mongoose
   })
   .catch((err) => console.log(err));
 
-app.use(
-  cors({
-    origin: process.env.SERVER_URL,
-  })
-);
+app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
