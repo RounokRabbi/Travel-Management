@@ -10,7 +10,7 @@ export const requireSignIn = async (req, res, next) => {
         message: "Unautorized: Token not provided!",
       });
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    jwt.verify(token, 'ASDFGHJKL:1234567890465789dsgsdgsdgdsgdsgsdgds', (err, user) => {
       if (err)
         return res.status(403).send({
           success: false,
