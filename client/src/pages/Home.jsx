@@ -56,7 +56,7 @@ const Home = () => {
     try {
       setLoading(true);
       const res = await fetch(
-        "/api/package/get-packages?sort=createdAt&offer=true&limit=6"
+        `${import.meta.env.VITE_API_URL}/api/package/get-packages?sort=createdAt&offer=true&limit=6`
       );
       const data = await res.json();
       if (data?.success) {
