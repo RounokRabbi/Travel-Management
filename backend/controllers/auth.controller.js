@@ -80,7 +80,7 @@ export const loginController = async (req, res) => {
 
     const token = await jwt.sign(
       { id: validUser._id },
-      process.env.JWT_SECRET,
+      'ASDFGHJKL:1234567890465789dsgsdgsdgdsgdsgsdgds',
       {
         expiresIn: "4d",
       }
